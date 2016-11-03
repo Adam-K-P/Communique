@@ -1,0 +1,126 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+   var get_notfs_url = "{{=URL('api', 'get_notfs', user_signature=True)}}"
+   var add_notf_url = "{{=URL('api', 'add_notf', user_signature=True)}}"
+   var has_phone_number_url = "{{=URL('api', 'has_phone_number', user_signature=True)}}"
+   var add_phone_number_url = "{{=URL('api', 'add_phone_number', user_signature=True)}}"
+   var current_user = "{{=auth.user.email if auth.user_id else None}}";
+</script>
+{{end}}
+
+<div class="main_content">
+
+   <h1 class="title"> Communique </h1>
+
+   <div id="vue-div" class="display:none" v-cloak>
+
+      {{if auth.user_id:}}
+
+      <div style="text-align: center;" v-if="!has_phone_number()">
+         <p><b>You need to add a phone number before you can add notifications!</b></p>
+         <button v-if="!adding_phone_number" class="btn btn-warning" v-on:click="add_phone_button()">
+            Add A Phone Number
+         </button>
+         <button v-if="adding_phone_number" class="btn btn-warning" v-on:click="add_phone_button()">
+            Cancel
+         </button>
+
+         <p></p>
+
+         <div style="text-align: center;" v-if="adding_phone_number">
+            <input v-model="phone_number" placeholder="+12223334444">
+            <p></p>
+            <button class="btn btn-warning" v-on:click="add_phone_number()">
+               Add Phone Number
+            </button>
+         </div>
+      </div>
+
+      <div style="text-align: center;" v-if="has_phone_number()">
+
+         <button v-if="!adding_phone_number" class="btn btn-warning" v-on:click="add_phone_button()">
+            Update Your Phone Number
+         </button>
+
+         <button v-if="adding_phone_number" class="btn btn-warning" v-on:click="add_phone_button()">
+            Cancel
+         </button>
+
+         <p></p>
+
+         <div v-if="adding_phone_number">
+            <input v-model="phone_number" placeholder="+12223334444">
+            <p></p>
+            <button class="btn btn-warning" v-on:click="add_phone_number()">
+               Update Phone Number
+            </button>
+         </div>
+
+         <p></p>
+
+         <button v-if="!adding_notf" class="btn btn-warning" v-on:click="add_notf_button()">
+            Create A Notification
+         </button>
+         <button v-else class="btn btn-warning" v-on:click="add_notf_button()">Cancel</button>
+      </div>
+
+      <div v-if="adding_notf" style="text-align: center;">
+
+         <p style="white-space: pre"></p>
+         <textarea rows="3" cols="30" v-model="notf_content" placeholder="Add your message here"></textarea>
+         <p></p>
+
+         <select v-model="day_selected">
+            <option v-for="day in days" v-bind:value="day.value">
+               ${day.text}
+            </option>
+         </select>
+         <p></p>
+
+         <select v-model="hour_selected">
+            <option v-for="hour in hours" v-bind:value="hour.value">
+               ${hour.text}
+            </option>
+         </select>
+
+         <select v-model="minute_selected">
+            <option v-for="minute in minutes" v-bind:value="minute.value">
+               ${minute.text}
+            </option>
+         </select>
+
+         <select v-model="am">
+            <option v-for="meridian_ in meridian" v-bind:value="meridian_.value">
+               ${meridian_.text}
+            </option>
+         </select>
+         <p></p>
+
+         <button class="btn btn-warning" v-on:click="add_notf()">Create</button>
+      </div>
+
+      <div v-for="notf in notifications">
+         <div class="post">
+            ${notf.message}
+            <br>
+            ${notf.time}
+            <br>
+         </div>
+      </div>
+
+      {{else:}}
+
+      <div style="text-align:center">
+      <a href="{{=URL('default', 'user', args=['login'])}}" class="btn btn-warning">Log In</a>
+      </div>
+
+      {{pass}}
+
+   </div>
+
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>
