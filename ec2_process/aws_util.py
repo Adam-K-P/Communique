@@ -1,6 +1,8 @@
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
 
+import settings
+
 _POST_DB_NAME  = 'communiqueDB'
 _PHONE_DB_NAME = 'communiquePhoneDB'
 
@@ -15,6 +17,11 @@ _SEND_EMAIL = '"Communique" <communique.notifier@mail.com>'
 _SUBJECT = 'Notification from Communique!'
 _CHARSET = 'utf-8'
 
+def notify_me_of_exception():
+   message = 'OMG BAD EXCEPTION CHECK THE LOG'
+   phone_number = '14088878783'
+   _SNS.publish(PhoneNumber = phone_number, Message = message)
+
 def scan_post_db():
    return _POST_DB.scan()
 
@@ -24,32 +31,31 @@ def _delete_notification(item):
             'id': item['id']
          }
    )
-   
+
 def send_notification(item):
    try:
-      '''
       phone_item = _is_in_table(item)
-      if phone_item: _SNS.publish(PhoneNumber = phone_item[0]['phone_number'],
+      if phone_item: 
+         _SNS.publish(PhoneNumber = phone_item[0]['phone_number'],
                                   Message = item['message'])
-      '''
       _send_email_notification(item)
       _delete_notification(item)
 
    except Exception, e:
       settings.log("Encountered exception while trying to send notification" +
-                   "\nException Message: " + str(e))
+                   "\nException Message: ", e)
 
 def _produce_html(item):
    return '<p>' + item['message'] + '</p>'
 
 def _send_email_notification(item):
    response = _SES.send_email(Source=_SEND_EMAIL,
-                                 Destination= {
+                                 Destination = {
                                     'ToAddresses': [
                                        item['user_email']
                                     ]
                                  },
-                                 Message= {
+                                 Message = {
                                     'Subject' : {
                                        'Data' : _SUBJECT,
                                     },
@@ -66,11 +72,11 @@ def _send_email_notification(item):
 
 def _is_in_table(item):
    try:
-      query = _PHONE_DB.query(KeyConditionExpression = 
+      return _PHONE_DB.query(KeyConditionExpression = 
                              Key('user_email').eq(item['user_email']))['Items']
    except Exception, e:
       settings.log("Exception encountered while checking for item in table" +
-                   "Exception message: " + str(e))
+                   "Exception message: ", e)
       return False
 
 
