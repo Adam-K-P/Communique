@@ -13,6 +13,13 @@ var app = function() {
 
     Vue.config.silent = false; // show all warnings
 
+    //no library function to do this ???
+    self.stringify_with_leading_zeros = function(num, size) {
+       var num_ = num.toString();
+       for (var i = num_.length; i < size; ++i) num_ = "0" + num_;
+       return num_;
+    };
+
     self.edit_notf_button = function(id) { //fucking vue...
        for (var i = 0; i < self.vue.editing_notf.length; ++i) {
           if (self.vue.editing_notf[i] == id) { //it's already being edited
@@ -33,10 +40,22 @@ var app = function() {
        self.vue.editing_notf.push(id);
     };
 
+    self.get_edit_time = function(id) {
+       var edit_time = self.vue.edit_day_selected[id];
+       if (self.vue.edit_meridian_selected[id] == "0")
+          edit_time += edit_hour_selected[id] == "12" ?
+             "00" : self.vue.edit_hour_selected[id];
+       else edit_time +=
+          self.vue.edit_hour_selected[id] == "12" ?
+             "12" : (parseInt(self.vue.edit_hour_selected[id]) + 12).toString();
+       return edit_time + self.vue.edit_minute_selected[id];
+    }
+
     self.edit_notf = function(id) {
        $.post(edit_notf_url, {
           notf_id: id,
-          message: self.vue.edit_content[id]
+          message: self.vue.edit_content[id],
+          time: self.get_edit_time(id)
        }, function(data) {
           self.edit_notf_button(id);
           self.get_notfs();
@@ -58,10 +77,12 @@ var app = function() {
     self.extract_hour_meridian = function(hour, index) {
        if (hour >= 12) {
           self.vue.edit_meridian_selected[index] = "1";
-          self.vue.edit_hour_selected[index] = hour == 12 ? 12 : hour - 12;
+          self.vue.edit_hour_selected[index] =
+             self.stringify_with_leading_zeros(hour == 12 ? 12 : hour - 12, 2);
        } else {
           self.vue.edit_meridian_selected[index] = "0";
-          self.vue.edit_hour_selected[index] = hour == 0 ? 12 : hour;
+          self.vue.edit_hour_selected[index] =
+             self.stringify_with_leading_zeros(hour == 0 ? 12 : hour, 2);
        }
     };
 
@@ -70,11 +91,6 @@ var app = function() {
        $.get(get_notfs_url, function(data) {
 
           self.vue.notifications = data.notifications;
-
-          //this is a bad solution I keep using...but it does work...
-          /*var temp_days = [];
-          var temp_hours = [];
-          var temp_minutes = [];*/
 
           //may have to consider doing this differently
           for (var i = 0; i < data.notifications.length; ++i) {
@@ -86,20 +102,10 @@ var app = function() {
                 parseInt(data.notifications[i].time.substring(3, 5)),
                          data.notifications[i].id_);
 
-             /*self.vue.edit_hour_selected[data.notifications[i].id_] =
-                data.notifications[i].time.substring(3, 5);*/
-
              self.vue.edit_minute_selected[data.notifications[i].id_] =
-                data.notifications[i].time.substring(5, 7);
-
-             /*temp_days.push(data.notifications[i].substring(0, 3));
-             temp_hours.push(data.notifications[i].substring(3, 5));
-             temp_minutes.push(data.notifications[i].substring(5, 7));*/
+                self.stringify_with_leading_zeros
+                   (parseInt(data.notifications[i].time.substring(5, 7)), 2);
           }
-
-          /*self.vue.edit_day_selected = temp_days;
-          self.vue.edit_hour_selected = temp_hours;
-          self.vue.edit_minute_selected = temp_minutes;*/
        });
     };
 

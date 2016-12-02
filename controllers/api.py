@@ -30,7 +30,8 @@ def _get_proper_time(time):
 def edit_notf():
     request_data = { 
             "id": int(request.vars.notf_id),
-            "message": request.vars.message
+            "message": request.vars.message,
+            "time": request.vars.time
     }
     requests.post(AWS_EDIT_POST_URL, headers=_JSON_HEADER,
                   data=json.dumps(request_data))
