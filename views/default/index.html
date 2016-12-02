@@ -7,6 +7,7 @@
    var add_notf_url = "{{=URL('api', 'add_notf', user_signature=True)}}"
    var has_phone_number_url = "{{=URL('api', 'has_phone_number', user_signature=True)}}"
    var add_phone_number_url = "{{=URL('api', 'add_phone_number', user_signature=True)}}"
+   var del_notf_url = "{{=URL('api', 'del_notf', user_signature=True)}}"
    var current_user = "{{=auth.user.email if auth.user_id else None}}";
 </script>
 {{end}}
@@ -108,6 +109,7 @@
             <br>
             ${notf.time}
             <br>
+            <i class="fa fa-trash-o" aria-hidden="true" v-on:click="del_notf(notf.id_)"></i>
          </div>
       </div>
 

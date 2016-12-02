@@ -51,6 +51,17 @@ var app = function() {
        self.vue.adding_phone_number = !self.vue.adding_phone_number;
     };
 
+    //could use some error checking here
+    self.del_notf = function(id) {
+       $.post(del_notf_url,
+          {
+             id_: id
+          }, function (data) {
+             self.get_notfs();
+          }
+       );
+    };
+
     self.add_phone_number = function() {
        //should do verification first here
        $.post(add_phone_number_url,
@@ -121,8 +132,13 @@ var app = function() {
         methods: {
            add_notf: self.add_notf,
            add_notf_button: self.add_notf_button,
+
+           del_notf: self.del_notf,
+
            add_phone_button: self.add_phone_button,
+
            has_phone_number: self.has_phone_number,
+
            add_phone_number: self.add_phone_number
         }
     });

@@ -17,7 +17,7 @@ _SEND_EMAIL = '"Communique" <communique.notifier@mail.com>'
 _SUBJECT = 'Notification from Communique!'
 _CHARSET = 'utf-8'
 
-def notify_me_of_exception():
+def notify_me_of_exception(): #lol
    message = 'OMG BAD EXCEPTION CHECK THE LOG'
    phone_number = '14088878783'
    _SNS.publish(PhoneNumber = phone_number, Message = message)
@@ -45,6 +45,7 @@ def send_notification(item):
       settings.log("Encountered exception while trying to send notification" +
                    "\nException Message: ", e)
 
+#might be able to do something cool with this later
 def _produce_html(item):
    return '<p>' + item['message'] + '</p>'
 
