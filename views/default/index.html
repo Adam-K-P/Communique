@@ -8,6 +8,7 @@
    var has_phone_number_url = "{{=URL('api', 'has_phone_number', user_signature=True)}}"
    var add_phone_number_url = "{{=URL('api', 'add_phone_number', user_signature=True)}}"
    var del_notf_url = "{{=URL('api', 'del_notf', user_signature=True)}}"
+   var edit_notf_url = "{{=URL('api', 'edit_notf', user_signature=True)}}"
    var current_user = "{{=auth.user.email if auth.user_id else None}}";
 </script>
 {{end}}
@@ -109,7 +110,48 @@
             <br>
             ${notf.time}
             <br>
+            <i class="fa fa-pencil" aria-hidden="true" v-on:click="edit_notf_button(notf.id_)"></i>
             <i class="fa fa-trash-o" aria-hidden="true" v-on:click="del_notf(notf.id_)"></i>
+            <br>
+
+            <span v-if="is_being_edited(notf.id_)">
+               <p style = "white-space: pre"></p>
+               <br>
+               <textarea rows="5" cols="50" v-model="edit_content[notf.id_]"></textarea>
+
+               <p></p>
+
+               <select v-model="edit_day_selected[notf.id_]">
+                  <option v-for="day in days" v-bind:value="day.value">
+                     ${day.text}
+                  </option>
+               </select>
+
+               <select v-model="edit_hour_selected[notf.id_]">
+                  <option v-for="hour in hours" v-bind:value="hour.value">
+                     ${hour.text}
+                  </option>
+               </select>
+
+               <select v-model="edit_minute_selected[notf.id_]">
+                  <option v-for="minute in minutes" v-bind:value="minute.value">
+                     ${minute.text}
+                  </option>
+               </select>
+
+               <select v-model="edit_meridian_selected[notf.id_]">
+                  <option v-for="meridian_ in meridian" v-bind:value="meridian_.value">
+                     ${meridian_.text}
+                  </option>
+               </select>
+
+               <p></p>
+
+               <button class="edit-post-button" v-on:click="edit_notf(notf.id_)">Update</button>
+               <button class="cancel-button" v-on:click="edit_notf_button(notf.id_)">Cancel</button>
+
+            </span>
+
          </div>
       </div>
 

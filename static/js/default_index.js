@@ -1,5 +1,7 @@
 // This is the js for the default/index.html view.
 
+//TODO: error checking on these external requests would be nice
+
 var app = function() {
 
     var self = {};
@@ -11,13 +13,93 @@ var app = function() {
 
     Vue.config.silent = false; // show all warnings
 
+    self.edit_notf_button = function(id) { //fucking vue...
+       for (var i = 0; i < self.vue.editing_notf.length; ++i) {
+          if (self.vue.editing_notf[i] == id) { //it's already being edited
+
+             var temp = [];
+
+             for (var j = 0; j < i; ++j)
+                temp.push(self.vue.editing_notf[j]);
+             for (var j = i + 1; j < self.vue.editing_notf.length; ++j)
+                temp.push(self.vue.editing_notf[j]);
+
+             self.vue.editing_notf = temp;
+
+             return;
+          }
+       }
+
+       self.vue.editing_notf.push(id);
+    };
+
+    self.edit_notf = function(id) {
+       $.post(edit_notf_url, {
+          notf_id: id,
+          message: self.vue.edit_content[id]
+       }, function(data) {
+          self.edit_notf_button(id);
+          self.get_notfs();
+       });
+    };
+
+    self.is_being_edited = function(id) {
+       for (var i = 0; i < self.vue.editing_notf.length; ++i)
+          if (self.vue.editing_notf[i] == id)
+             return true;
+       return false;
+    };
+
     self.add_notf_button = function() {
        self.vue.adding_notf = !self.vue.adding_notf;
     };
 
+    //hour must be passed in as an integer
+    self.extract_hour_meridian = function(hour, index) {
+       if (hour >= 12) {
+          self.vue.edit_meridian_selected[index] = "1";
+          self.vue.edit_hour_selected[index] = hour == 12 ? 12 : hour - 12;
+       } else {
+          self.vue.edit_meridian_selected[index] = "0";
+          self.vue.edit_hour_selected[index] = hour == 0 ? 12 : hour;
+       }
+    };
+
     self.get_notfs = function() {
+
        $.get(get_notfs_url, function(data) {
+
           self.vue.notifications = data.notifications;
+
+          //this is a bad solution I keep using...but it does work...
+          /*var temp_days = [];
+          var temp_hours = [];
+          var temp_minutes = [];*/
+
+          //may have to consider doing this differently
+          for (var i = 0; i < data.notifications.length; ++i) {
+
+             self.vue.edit_day_selected[data.notifications[i].id_] =
+                data.notifications[i].time.substring(0, 3);
+
+             self.extract_hour_meridian(
+                parseInt(data.notifications[i].time.substring(3, 5)),
+                         data.notifications[i].id_);
+
+             /*self.vue.edit_hour_selected[data.notifications[i].id_] =
+                data.notifications[i].time.substring(3, 5);*/
+
+             self.vue.edit_minute_selected[data.notifications[i].id_] =
+                data.notifications[i].time.substring(5, 7);
+
+             /*temp_days.push(data.notifications[i].substring(0, 3));
+             temp_hours.push(data.notifications[i].substring(3, 5));
+             temp_minutes.push(data.notifications[i].substring(5, 7));*/
+          }
+
+          /*self.vue.edit_day_selected = temp_days;
+          self.vue.edit_hour_selected = temp_hours;
+          self.vue.edit_minute_selected = temp_minutes;*/
        });
     };
 
@@ -51,7 +133,6 @@ var app = function() {
        self.vue.adding_phone_number = !self.vue.adding_phone_number;
     };
 
-    //could use some error checking here
     self.del_notf = function(id) {
        $.post(del_notf_url,
           {
@@ -70,6 +151,7 @@ var app = function() {
              phone_number: self.vue.phone_number
           }, function(data) {
              self.vue.phone_number = "";
+             self.vue.add_phone_button();
           });
     };
 
@@ -79,6 +161,14 @@ var app = function() {
         unsafeDelimiters: ['!{', '}'],
         data: {
            notifications: [],
+
+           editing_notf: [],
+           edit_content: [],
+           edit_day_selected: [],
+           edit_hour_selected: [],
+           edit_minute_selected: [],
+           edit_meridian_selected: [], //0 == am; 1 == pm
+
            adding_phone_number: false,
            phone_number: "",
            adding_notf: false,
@@ -130,6 +220,10 @@ var app = function() {
            ]
         },
         methods: {
+           edit_notf: self.edit_notf,
+           edit_notf_button: self.edit_notf_button,
+           is_being_edited: self.is_being_edited,
+
            add_notf: self.add_notf,
            add_notf_button: self.add_notf_button,
 

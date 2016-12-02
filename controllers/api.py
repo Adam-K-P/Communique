@@ -12,6 +12,7 @@ AWS_GET_POSTS_URL = AWS_BASE_URL + "getposts"
 AWS_HAS_PHONE_NUMBER_URL = AWS_BASE_URL + "hasphonenumber"
 AWS_ADD_PHONE_URL = AWS_BASE_URL + "addphone"
 AWS_DEL_POST_URL = AWS_BASE_URL + "deletepost"
+AWS_EDIT_POST_URL = AWS_BASE_URL + "editpost"
 
 _JSON_HEADER = {'Content-type': 'application/json'}
 
@@ -24,6 +25,16 @@ def _get_proper_time(time):
     hour = _get_proper_hour(time[3:5], time[7:8])
     minute = time[5:7]
     return day + hour + minute
+
+@auth.requires_signature()
+def edit_notf():
+    request_data = { 
+            "id": int(request.vars.notf_id),
+            "message": request.vars.message
+    }
+    requests.post(AWS_EDIT_POST_URL, headers=_JSON_HEADER,
+                  data=json.dumps(request_data))
+    return 'ok'
 
 @auth.requires_signature()
 def del_notf():
