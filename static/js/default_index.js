@@ -43,7 +43,7 @@ var app = function() {
     self.get_edit_time = function(id) {
        var edit_time = self.vue.edit_day_selected[id];
        if (self.vue.edit_meridian_selected[id] == "0")
-          edit_time += edit_hour_selected[id] == "12" ?
+          edit_time += self.vue.edit_hour_selected[id] == "12" ?
              "00" : self.vue.edit_hour_selected[id];
        else edit_time +=
           self.vue.edit_hour_selected[id] == "12" ?
