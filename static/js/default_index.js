@@ -53,7 +53,7 @@ var app = function() {
        return "This notification will be delivered this " +
               self.get_formatted_day(day) +
               " at " +
-              self.get_formatted_time(hour, minute)
+              self.get_formatted_time(hour, minute) +
               " via " +
               self.get_formatted_delivery_method(notf.delivery_method);
     }
@@ -100,7 +100,8 @@ var app = function() {
        $.post(edit_notf_url, {
           notf_id: id,
           message: self.vue.edit_content[id],
-          time: self.get_edit_time(id)
+          time: self.get_edit_time(id),
+          delivery_method: self.vue.edit_delivery_method_selected[id]
        }, function(data) {
           self.edit_notf_button(id);
           self.get_notfs();

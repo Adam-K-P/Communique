@@ -29,9 +29,10 @@ def _get_proper_time(time):
 @auth.requires_signature()
 def edit_notf():
     request_data = { 
-            "id": int(request.vars.notf_id),
-            "message": request.vars.message,
-            "time": request.vars.time
+        "id": int(request.vars.notf_id),
+        "message": request.vars.message,
+        "time": request.vars.time,
+        "delivery_method": request.vars.delivery_method
     }
     requests.post(AWS_EDIT_POST_URL, headers=_JSON_HEADER,
                   data=json.dumps(request_data))

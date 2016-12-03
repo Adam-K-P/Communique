@@ -34,11 +34,16 @@ def _delete_notification(item):
 
 def send_notification(item):
    try:
-      phone_item = _is_in_table(item)
-      if phone_item: 
-         _SNS.publish(PhoneNumber = phone_item[0]['phone_number'],
-                                  Message = item['message'])
-      _send_email_notification(item)
+      if item['delivery_method'] == 'text' or item['delivery_method'] == 'both':
+         phone_item = _is_in_table(item)
+         if phone_item: 
+            _SNS.publish(PhoneNumber = phone_item[0]['phone_number'],
+                                     Message = item['message'])
+
+      if (item['delivery_method'] == 'email' or 
+          item['delivery_method'] == 'both'):
+         _send_email_notification(item)
+
       _delete_notification(item)
 
    except Exception, e:
