@@ -65,7 +65,8 @@ def get_notfs():
                                          params = {
                                             'user_email':request.vars.user_email
                                          },
-                                         headers=headers).json())))
+                                         headers=headers).json(),
+                                         auth.user.email)))
 
 @auth.requires_signature()
 def has_phone_number():
@@ -86,9 +87,13 @@ def add_phone_number():
                   data=json.dumps(request_data))
     return 'ok'
 
-def _get_notfs(response):
+def _get_notfs(response, user_email):
+    logger.info(response)
+    logger.info(user_email)
     return map(_strip_notfs, 
-               filter(lambda item: 'message' in item, response['Items']))
+               filter(lambda item: 'message' in item and
+                                   item['user_email']['S'] == user_email, #lol
+                      response['Items']))
     
 def _strip_notfs(item):
     return dict(message = item['message']['S'],
