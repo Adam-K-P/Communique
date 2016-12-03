@@ -13,6 +13,51 @@ var app = function() {
 
     Vue.config.silent = false; // show all warnings
 
+    self.get_formatted_day = function(day) {
+       switch (day) {
+          case "MON": return "Monday";
+          case "TUE": return "Tuesday";
+          case "WED": return "Wednesday";
+          case "THU": return "Thursday";
+          case "FRI": return "Friday";
+          case "SAT": return "Saturday";
+          case "SUN": return "Sunday";
+       }
+    };
+
+    self.get_formatted_time = function(hour, minute) {
+       var hour_ = parseInt(hour);
+       var meridian = "am";
+
+       if (hour_ >= 12) {
+          hour_ = hour_ == 12 ? 12 : hour_ - 12;
+          meridian = "pm"
+       } else hour_ = hour_ == 0 ? 12 : hour_;
+
+       return hour_.toString() + ":" + minute + " " + meridian;
+    };
+
+    self.get_formatted_delivery_method = function(delivery_method) {
+       switch (delivery_method) {
+          case "text": return "Text Message";
+          case "email": return "Email";
+          case "both": return "Text Message and Email";
+       }
+    };
+
+    self.get_notf_details_message = function(notf) {
+       var day = notf.time.substring(0,3);
+       var hour = notf.time.substring(3,5);
+       var minute = notf.time.substring(5,7);
+
+       return "This notification will be delivered this " +
+              self.get_formatted_day(day) +
+              " at " +
+              self.get_formatted_time(hour, minute)
+              " via " +
+              self.get_formatted_delivery_method(notf.delivery_method);
+    }
+
     //no library function to do this ???
     self.stringify_with_leading_zeros = function(num, size) {
        var num_ = num.toString();
@@ -95,6 +140,9 @@ var app = function() {
           //may have to consider doing this differently
           for (var i = 0; i < data.notifications.length; ++i) {
 
+             self.vue.edit_content[data.notifications[i].id_] =
+                data.notifications[i].message;
+
              self.vue.edit_day_selected[data.notifications[i].id_] =
                 data.notifications[i].time.substring(0, 3);
 
@@ -105,6 +153,9 @@ var app = function() {
              self.vue.edit_minute_selected[data.notifications[i].id_] =
                 self.stringify_with_leading_zeros
                    (parseInt(data.notifications[i].time.substring(5, 7)), 2);
+
+             self.vue.edit_delivery_method_selected[data.notifications[i].id_]
+                = data.notifications[i].delivery_method;
           }
        });
     };
@@ -123,7 +174,8 @@ var app = function() {
              time: self.vue.day_selected +
                    self.vue.hour_selected +
                    self.vue.minute_selected +
-                   self.vue.am
+                   self.vue.am,
+             delivery_method: self.vue.delivery_method
           }, function(data) {
              self.vue.notf_content = "";
              self.vue.day_selected = "MON";
@@ -174,15 +226,19 @@ var app = function() {
            edit_hour_selected: [],
            edit_minute_selected: [],
            edit_meridian_selected: [], //0 == am; 1 == pm
+           edit_delivery_method_selected: [],
 
            adding_phone_number: false,
            phone_number: "",
            adding_notf: false,
+
            notf_content: "",
            day_selected: "MON",
            hour_selected: "12",
            minute_selected: "00",
            am: "0",
+           delivery_method: "text",
+
            days: [ 
              { text: "Monday", value: "MON" },
              { text: "Tuesday", value: "TUE" },
@@ -223,6 +279,12 @@ var app = function() {
            meridian: [
               { text: "am", value: "0" },
               { text: "pm", value: "1" }
+           ],
+
+           delivery_methods: [
+              { text: "Text Message", value: "text" },
+              { text: "Email", value: "email" },
+              { text: "Both", value: "both" }
            ]
         },
         methods: {
@@ -239,7 +301,9 @@ var app = function() {
 
            has_phone_number: self.has_phone_number,
 
-           add_phone_number: self.add_phone_number
+           add_phone_number: self.add_phone_number,
+
+           get_notf_details_message: self.get_notf_details_message
         }
     });
 

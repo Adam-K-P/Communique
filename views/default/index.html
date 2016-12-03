@@ -73,14 +73,14 @@
 
          <p style="white-space: pre"></p>
          <textarea rows="3" cols="30" v-model="notf_content" placeholder="Add your message here"></textarea>
-         <p></p>
 
+         <p></p>
+         Day/Time: &nbsp
          <select v-model="day_selected">
             <option v-for="day in days" v-bind:value="day.value">
                ${day.text}
             </option>
          </select>
-         <p></p>
 
          <select v-model="hour_selected">
             <option v-for="hour in hours" v-bind:value="hour.value">
@@ -99,6 +99,16 @@
                ${meridian_.text}
             </option>
          </select>
+
+         <p></p>
+         Delivery Method: &nbsp
+
+         <select v-model="delivery_method">
+            <option v-for="method in delivery_methods" v-bind:value="method.value">
+            ${method.text}
+            </option>
+         </select>
+
          <p></p>
 
          <button class="btn btn-warning" v-on:click="add_notf()">Create</button>
@@ -107,8 +117,8 @@
       <div v-for="notf in notifications">
          <div class="post">
             ${notf.message}
-            <br>
-            ${notf.time}
+            <br> <br>
+            <i> ${get_notf_details_message(notf)}</i>
             <br>
             <i class="fa fa-pencil" aria-hidden="true" v-on:click="edit_notf_button(notf.id_)"></i>
             <i class="fa fa-trash-o" aria-hidden="true" v-on:click="del_notf(notf.id_)"></i>
@@ -120,6 +130,8 @@
                <textarea rows="5" cols="50" v-model="edit_content[notf.id_]"></textarea>
 
                <p></p>
+
+               Day/Time: &nbsp
 
                <select v-model="edit_day_selected[notf.id_]">
                   <option v-for="day in days" v-bind:value="day.value">
@@ -142,6 +154,16 @@
                <select v-model="edit_meridian_selected[notf.id_]">
                   <option v-for="meridian_ in meridian" v-bind:value="meridian_.value">
                      ${meridian_.text}
+                  </option>
+               </select>
+
+               <p></p>
+
+               Delivery Method: &nbsp
+
+               <select v-model="edit_delivery_method_selected[notf.id_]">
+                  <option v-for="method in delivery_methods" v-bind:value="method.value">
+                     ${method.text}
                   </option>
                </select>
 

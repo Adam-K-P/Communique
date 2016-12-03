@@ -49,7 +49,8 @@ def add_notf():
     request_data = {
         "time": _get_proper_time(request.vars.time),
         "user_email": request.vars.user_email,
-        "message": request.vars.message
+        "message": request.vars.message,
+        "delivery_method": request.vars.delivery_method
     }
     requests.post(AWS_ADD_POST_URL, headers=_JSON_HEADER,
                   data=json.dumps(request_data))
@@ -91,5 +92,6 @@ def _get_notfs(response):
 def _strip_notfs(item):
     return dict(message = item['message']['S'],
                 time = item['time']['S'],
-                id_ = item['id']['N'])
+                id_ = item['id']['N'],
+                delivery_method = item['delivery_method']['S'])
 
