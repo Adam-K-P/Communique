@@ -17,10 +17,11 @@ _SEND_EMAIL = '"Communique" <communique.notifier@mail.com>'
 _SUBJECT = 'Notification from Communique!'
 _CHARSET = 'utf-8'
 
+_MY_PHONE_NUMBER = '14088878783' #plz don't spam me
+
 def notify_me_of_exception(): #lol
    message = 'OMG BAD EXCEPTION CHECK THE LOG'
-   phone_number = '14088878783'
-   _SNS.publish(PhoneNumber = phone_number, Message = message)
+   _SNS.publish(PhoneNumber = _MY_PHONE_NUMBER, Message = message)
 
 def scan_post_db():
    return _POST_DB.scan()
@@ -34,11 +35,9 @@ def _delete_notification(item):
 
 def send_notification(item):
    try:
-      if item['delivery_method'] == 'text' or item['delivery_method'] == 'both':
-         phone_item = _is_in_table(item)
-         if phone_item: 
-            _SNS.publish(PhoneNumber = phone_item[0]['phone_number'],
-                                     Message = item['message'])
+      if (item['delivery_method'] == 'text' or
+          item['delivery_method'] == 'both'):
+         _send_text_notification(item)
 
       if (item['delivery_method'] == 'email' or 
           item['delivery_method'] == 'both'):
@@ -49,6 +48,12 @@ def send_notification(item):
    except Exception, e:
       settings.log("Encountered exception while trying to send notification" +
                    "\nException Message: ", e)
+
+def _send_text_notification(item):
+      phone_item = _is_in_table(item)
+      if phone_item: 
+         _SNS.publish(PhoneNumber = phone_item[0]['phone_number'],
+                                  Message = item['message'])
 
 #might be able to do something cool with this later
 def _produce_html(item):
