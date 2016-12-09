@@ -1,3 +1,7 @@
-____SHOULD_HAVE____
-*Sleep function w/ email
+*Deploy lambdas with zip files rather than inline code
+
+*Sleep function
+   *Twilio to send/receive messages (get rid of SNS)
+   *SES for receiving emails
+
 *Better UI (display is kinda lame)
