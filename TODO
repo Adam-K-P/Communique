@@ -1,5 +1,3 @@
-*Deploy lambdas with zip files rather than inline code
-
 *Sleep function
    *Twilio to send/receive messages (get rid of SNS)
    *SES for receiving emails

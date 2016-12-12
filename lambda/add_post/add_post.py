@@ -31,7 +31,8 @@ def place_item_in_db(id, info):
                             'message': info['message'],
                             'time': info['time'],
                             'user_email': info['user_email'],
-                            'delivery_method': info['delivery_method']
+                            'delivery_method': info['delivery_method'],
+                            'sent': false
                           }
                   )
     update_next_id(id + 1)
